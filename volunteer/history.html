@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+<title>Delivery History — Sufra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/css/style.css" />
+<link rel="stylesheet" href="../assets/css/responsive.css" />
+<link rel="stylesheet" href="../assets/css/dashboard.css" />
+</head>
+<body>
+
+<div class="sidebar-overlay" data-sidebar-overlay></div>
+
+<div class="dashboard-shell">
+  <aside class="dashboard-sidebar" data-dashboard-sidebar>
+    <a href="../index.html" class="dashboard-sidebar__brand">
+      <span class="dashboard-sidebar__brand-mark" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="sufraMarkGrad" x1="20" y1="8" x2="82" y2="96" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#E7896A"/><stop offset="0.55" stop-color="#D36B4A"/><stop offset="1" stop-color="#A8452C"/></linearGradient></defs><circle cx="50" cy="50" r="46" fill="none" stroke="#D9A441" stroke-width="2.5"/><circle cx="50" cy="50" r="41" fill="url(#sufraMarkGrad)"/><path d="M22 59 Q50 79 78 59 Q50 70 22 59 Z" fill="#FBF6EC"/><ellipse cx="50" cy="58" rx="28" ry="7.5" fill="#FBF6EC"/><path d="M50 28c-5-7-17-5.5-17 3.5 0 8.5 9.5 13 17 18.5 7.5-5.5 17-10 17-18.5 0-9-12-10.5-17-3.5Z" fill="#8FBF9B"/><path d="M50 40l-4.5-7M50 40l4.5-7" stroke="#3E6650" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M50 40v22" stroke="#2E4235" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </span>
+      Sufra
+    </a>
+    <nav class="dashboard-sidebar__nav">
+      <div class="dashboard-sidebar__section-label">Volunteer</div>
+      <ul>
+        <li><a href="dashboard.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/></svg>Dashboard</a></li>
+        <li><a href="assignments.html#available"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Available Assignments</a></li>
+        <li><a href="assignments.html#my-pickups"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="1" y="7" width="13" height="9" rx="1" stroke="currentColor" stroke-width="2"/><path d="M14 10h4l3 3v3h-7v-6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="18" r="1.6" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="18" r="1.6" stroke="currentColor" stroke-width="2"/></svg>My Pickups</a></li>
+        <li><a href="history.html" class="is-active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 8v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg>Delivery History</a></li>
+        <li><a href="notifications.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="2"/></svg>Notifications</a></li>
+        <li><a href="profile.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Profile</a></li>
+      </ul>
+    </nav>
+    <div class="dashboard-sidebar__footer">
+      <button class="dashboard-sidebar__logout" onclick="logout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <div class="dashboard-main">
+    <header class="dashboard-topbar">
+      <div class="dashboard-topbar__left">
+        <button class="dashboard-topbar__toggle" data-sidebar-toggle aria-label="Toggle menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <span class="dashboard-topbar__title">Delivery History</span>
+      </div>
+      <div class="dashboard-topbar__actions">
+        <div class="topbar-avatar" id="topbar-avatar">V</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <div class="dashboard-content__head">
+        <div>
+          <h2 style="margin-bottom: 0.25rem;">Delivery History</h2>
+          <p class="text-muted">Pickups you've completed or that were cancelled.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="filter-bar">
+          <div class="field">
+            <select id="filter-history-status" aria-label="Filter by status">
+              <option value="">All</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="history-empty" class="empty-state" hidden>
+          <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none"><path d="M12 8v5l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/></svg>
+          <h3>Nothing here yet</h3>
+          <p>Completed and cancelled pickups will show up in this list.</p>
+        </div>
+
+        <div class="table-wrap" id="history-table-wrap"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="../assets/js/data-api.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/donations.js"></script>
+<script src="../assets/js/pickups.js"></script>
+<script>
+  initHistoryPage();
+</script>
+</body>
+</html>

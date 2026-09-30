@@ -1,0 +1,158 @@
+/* =========================================================
+   FoodShare — Responsive rules
+   File: assets/css/responsive.css
+
+   Breakpoints:
+     1024px  — tablet (side panels collapse, grids go 2-col)
+      720px  — mobile (hamburger nav, single-column forms/grids)
+      480px  — small phone (tighter spacing & type, full-width CTAs)
+
+   Sidebar/dashboard responsive rules are added in dashboard.css
+   once dashboards are built (Phase 2+).
+   ========================================================= */
+
+/* ---------- Tablet (<=1024px) ---------- */
+@media (max-width: 1024px) {
+  .container { padding-inline: var(--space-4); }
+
+  /* Auth pages: stack instead of side-by-side, but keep a
+     shortened version of the brand panel on top rather than
+     dropping it — an empty half-screen reads as unfinished. */
+  .auth-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 0;
+  }
+
+  .auth-shell__panel {
+    padding: var(--space-6) var(--space-5);
+    text-align: center;
+    align-items: center;
+  }
+
+  .auth-shell__panel h2 { font-size: 1.3rem; }
+  .auth-shell__panel p { display: none; }
+  .auth-shell__panel > div { justify-content: center; margin-top: var(--space-3) !important; }
+
+  .auth-shell__form { padding: var(--space-7) var(--space-5); }
+
+  .site-footer__inner { grid-template-columns: 1fr 1fr; }
+
+  .hero__grid { gap: var(--space-6); }
+}
+
+/* ---------- Mobile (<=720px) ---------- */
+@media (max-width: 720px) {
+  .container { padding-inline: var(--space-4); }
+
+  /* --- Navbar: single hamburger menu, no competing header buttons ---
+     Scoped with :has() so this only affects the navbar that actually
+     contains a hamburger toggle (the landing page). Auth pages
+     (login/register) have their own simple header with one action
+     button and are left untouched. */
+  .navbar:has(.navbar__toggle) .navbar__actions { display: none; }
+
+  .navbar__inner { padding-block: var(--space-3); }
+
+  .navbar__links {
+    position: fixed;
+    top: 57px;
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    border-bottom: var(--border-hairline);
+    box-shadow: 0 12px 24px rgba(28, 26, 23, 0.08);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: var(--space-2) var(--space-4) var(--space-5);
+    transform: translateY(-8px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--duration-fast) var(--ease-standard),
+                transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .navbar__links.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .navbar__links li { width: 100%; border-bottom: var(--border-hairline); }
+  .navbar__links li:last-child { border-bottom: none; }
+  .navbar__links a { display: block; padding-block: var(--space-3); font-size: 0.95rem; }
+
+  .navbar__toggle { display: flex; }
+
+  /* --- Typography --- */
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.55rem; }
+  h3 { font-size: 1.2rem; }
+
+  /* --- Hero --- */
+  .hero { padding-block: var(--space-6) var(--space-5); }
+  .hero__actions { flex-direction: column; align-items: stretch; }
+  .hero__actions .btn { width: 100%; }
+
+  .ledger { padding: var(--space-5); }
+  .ledger__value { font-size: 1.4rem; }
+
+  /* --- Grids collapse to one column --- */
+  .steps { grid-template-columns: 1fr; }
+  .features { grid-template-columns: 1fr; }
+
+  .cta-band { flex-direction: column; align-items: flex-start; padding: var(--space-5); }
+  .cta-band .btn { width: 100%; }
+
+  /* --- Forms --- */
+  .form-row { grid-template-columns: 1fr; }
+  .role-picker { grid-template-columns: 1fr; }
+
+  /* --- Footer --- */
+  .site-footer__inner { grid-template-columns: 1fr; gap: var(--space-5); padding-block: var(--space-6); }
+  .site-footer__bottom { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+
+  /* --- Tables scroll horizontally rather than crushing columns --- */
+  .table-wrap table { min-width: 560px; }
+
+  /* --- Auth card --- */
+  .auth-shell__panel { padding: var(--space-5) var(--space-4); }
+  .auth-shell__form { padding: var(--space-6) var(--space-4); }
+  .role-picker { gap: var(--space-2); }
+
+  /* Auth header (login/register): drop the inline label so the
+     button doesn't get cramped next to it on narrow screens. */
+  .navbar:not(:has(.navbar__toggle)) .navbar__actions span { display: none; }
+
+  /* --- Comfortable tap targets --- */
+  .btn { min-height: 44px; }
+  input, select, textarea { font-size: 16px; } /* prevents iOS auto-zoom on focus */
+}
+
+/* ---------- Small phone (<=480px) ---------- */
+@media (max-width: 480px) {
+  .container { padding-inline: var(--space-3); }
+
+  h1 { font-size: 1.7rem; }
+  h2 { font-size: 1.35rem; }
+
+  .hero__lede { font-size: 1rem; }
+
+  .ledger__row { padding-block: var(--space-2); }
+  .ledger__value { font-size: 1.25rem; }
+
+  .navbar__brand { font-size: 1.15rem; }
+  .navbar__brand-mark { width: 26px; height: 26px; }
+
+  .card { padding: var(--space-4); }
+
+  .auth-card h1 { font-size: 1.5rem; }
+  .role-picker__option { padding: var(--space-2); font-size: var(--fs-xsmall); }
+
+  .toast-region { left: var(--space-3); right: var(--space-3); width: auto; }
+
+  .dashboard-placeholder { padding: var(--space-4); }
+}

@@ -1,0 +1,640 @@
+/* =========================================================
+   FoodShare — Dashboard layout styles
+   File: assets/css/dashboard.css
+
+   This file is intentionally minimal in Phase 1. It will hold
+   the sidebar + main-content dashboard shell, stat cards, and
+   role-specific layout rules starting in Phase 2 (Donor
+   frontend) and growing through Phase 5 (Admin frontend).
+
+   It is already linked from the placeholder dashboard pages
+   so those pages don't look broken while we wait for later
+   phases.
+   ========================================================= */
+
+.dashboard-placeholder {
+  min-height: calc(100vh - 65px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+}
+
+.dashboard-placeholder__card {
+  max-width: 460px;
+}
+
+.dashboard-placeholder__badge {
+  display: inline-block;
+  margin-bottom: var(--space-4);
+}
+
+/* =========================================================
+   Dashboard shell — sidebar + topbar + content
+   Used by every role dashboard from Phase 2 onward.
+   ========================================================= */
+
+.dashboard-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+/* ---------- Sidebar ---------- */
+.dashboard-sidebar {
+  background: linear-gradient(180deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+  color: #fff;
+  padding: var(--space-5) var(--space-4);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: lowercase;
+  padding: var(--space-2) var(--space-2) var(--space-5);
+}
+
+.dashboard-sidebar__brand:hover { text-decoration: none; }
+
+.dashboard-sidebar__brand-mark {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.dashboard-sidebar__brand-mark svg { width: 100%; height: 100%; }
+
+.dashboard-sidebar__nav {
+  flex: 1;
+}
+
+.dashboard-sidebar__nav ul {
+  list-style: none;
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dashboard-sidebar__section-label {
+  font-size: var(--fs-xsmall);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 0 var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.dashboard-sidebar__nav a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.6rem 0.7rem;
+  border-radius: var(--radius-sm);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  transition: background var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
+}
+
+.dashboard-sidebar__nav a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  text-decoration: none;
+}
+
+.dashboard-sidebar__nav a.is-active {
+  background: var(--gradient-accent);
+  color: #3a2308;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(232, 130, 61, 0.3);
+}
+
+.dashboard-sidebar__nav svg { flex-shrink: 0; }
+
+.dashboard-sidebar__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: var(--space-4);
+}
+
+.dashboard-sidebar__logout {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  padding: 0.6rem 0.7rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.dashboard-sidebar__logout:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* ---------- Sidebar overlay (mobile off-canvas) ---------- */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 20, 17, 0.5);
+  z-index: 55;
+  display: none;
+}
+
+.sidebar-overlay.is-open { display: block; }
+
+/* ---------- Main column ---------- */
+.dashboard-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dashboard-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--color-bg);
+  border-bottom: var(--border-hairline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+}
+
+.dashboard-topbar__left { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.dashboard-topbar__title { font-family: var(--font-display); font-size: 1.15rem; }
+
+.dashboard-topbar__toggle {
+  display: none;
+  background: none;
+  border: var(--border-hairline);
+  border-radius: var(--radius-sm);
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dashboard-topbar__actions { display: flex; align-items: center; gap: var(--space-3); }
+
+.icon-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  border: var(--border-hairline);
+  background: var(--color-surface);
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+
+.icon-btn:hover { background: var(--color-surface-sunken); }
+
+.icon-btn__dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  border: 1.5px solid var(--color-bg);
+}
+
+.topbar-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: var(--fs-small);
+  flex-shrink: 0;
+}
+
+.dashboard-content {
+  padding: var(--space-6) var(--space-5);
+  flex: 1;
+}
+
+.dashboard-content__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+
+.dashboard-content__head p { margin-bottom: 0; }
+
+/* ---------- Stat cards ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: var(--border-hairline);
+  border-top: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-medium) var(--ease-standard), box-shadow var(--duration-medium) var(--ease-standard);
+}
+
+/* Cycle accent colors across stat cards so a row of 4-5 numbers
+   reads as a set rather than a monotone block. Purely decorative
+   — order in the DOM doesn't carry meaning. */
+.stat-card:nth-of-type(4n+2) { border-top-color: var(--color-accent); }
+.stat-card:nth-of-type(4n+3) { border-top-color: var(--color-info); }
+.stat-card:nth-of-type(4n+4) { border-top-color: var(--color-success); }
+
+@media (hover: hover) {
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+}
+
+.stat-card__label {
+  font-size: var(--fs-small);
+  color: var(--color-muted);
+  margin-bottom: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stat-card__value {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+.stat-card__delta {
+  font-size: var(--fs-xsmall);
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+}
+
+.stat-card__delta--up { color: var(--color-success); }
+.stat-card__delta--down { color: var(--color-danger); }
+
+/* ---------- Section headers within dashboard content ---------- */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.section-head h2, .section-head h3 { margin-bottom: 0; }
+
+/* ---------- Activity list ---------- */
+.activity-list { display: flex; flex-direction: column; }
+
+.activity-item {
+  display: flex;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-bottom: var(--border-hairline);
+  font-size: var(--fs-small);
+}
+
+.activity-item:last-child { border-bottom: none; }
+
+.activity-item__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.activity-item__meta { color: var(--color-muted); font-size: var(--fs-xsmall); }
+
+/* ---------- Filter bar (search + selects) ---------- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  align-items: center;
+}
+
+.filter-bar .field { margin-bottom: 0; min-width: 160px; }
+.filter-bar__search { flex: 1 1 220px; min-width: 200px; }
+
+/* ---------- Donation / food thumbnail placeholders ---------- */
+.food-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(145deg, var(--color-accent-tint) 0%, var(--color-primary-tint) 100%);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.food-thumb--lg {
+  width: 100%;
+  height: 260px;
+  border-radius: var(--radius-md);
+  font-size: 3rem;
+}
+
+.table-cell-with-thumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.table-cell-with-thumb__name { font-weight: 600; color: var(--color-ink); white-space: normal; }
+.table-cell-with-thumb__meta { font-size: var(--fs-xsmall); color: var(--color-muted); }
+
+/* ---------- Pagination ---------- */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.pagination button {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: var(--border-hairline);
+  background: var(--color-surface);
+  color: var(--color-ink-soft);
+  font-size: var(--fs-small);
+  cursor: pointer;
+}
+
+.pagination button.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ---------- Donation details layout ---------- */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.details-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.details-list__row { display: flex; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-2); border-bottom: var(--border-hairline); font-size: var(--fs-small); }
+.details-list__row:last-child { border-bottom: none; }
+.details-list__label { color: var(--color-muted); }
+.details-list__value { color: var(--color-ink); font-weight: 600; text-align: right; }
+
+/* ---------- Timeline ---------- */
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li {
+  position: relative;
+  padding-left: var(--space-6);
+  padding-bottom: var(--space-5);
+  border-left: 2px solid var(--color-border);
+  margin-left: 6px;
+}
+.timeline li:last-child { border-color: transparent; padding-bottom: 0; }
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-border-strong);
+  border: 2px solid var(--color-bg);
+}
+.timeline li.is-complete::before { background: var(--gradient-primary); box-shadow: 0 0 0 3px var(--color-primary-tint); }
+.timeline li strong { display: block; font-size: var(--fs-small); }
+.timeline li span { font-size: var(--fs-xsmall); color: var(--color-muted); }
+
+/* ---------- Donation cards (Find Food grid) ---------- */
+.donation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-5);
+}
+
+.donation-card {
+  background: var(--color-surface);
+  border: var(--border-hairline);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-medium) var(--ease-standard),
+              box-shadow var(--duration-medium) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .donation-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.donation-card__image {
+  height: 140px;
+  background: linear-gradient(145deg, var(--color-accent-tint) 0%, var(--color-primary-tint) 100%);
+  display: grid;
+  place-items: center;
+  font-size: 2.75rem;
+  position: relative;
+}
+
+.donation-card__flag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.donation-card__body {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.donation-card__title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.donation-card__meta {
+  font-size: var(--fs-small);
+  color: var(--color-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.donation-card__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.donation-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.donation-card__actions .btn { flex: 1; }
+
+/* ---------- Simple vanilla bar charts (no chart library) ---------- */
+.bar-chart { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.bar-chart-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.bar-chart-row__label {
+  width: 150px;
+  flex-shrink: 0;
+  font-size: var(--fs-small);
+  color: var(--color-ink-soft);
+  white-space: normal;
+}
+
+.bar-chart-row__track {
+  flex: 1;
+  background: var(--color-surface-sunken);
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.bar-chart-row__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-primary);
+  transition: width var(--duration-medium) var(--ease-standard);
+}
+
+.bar-chart-row__fill--accent { background: var(--color-accent); }
+.bar-chart-row__fill--danger { background: var(--color-danger); }
+.bar-chart-row__fill--info { background: var(--color-info); }
+
+.bar-chart-row__value {
+  width: 56px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: var(--fs-xsmall);
+  color: var(--color-muted);
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+.summary-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+/* ---------- Responsive: dashboard shell ---------- */
+@media (max-width: 1024px) {
+  .dashboard-shell { grid-template-columns: 1fr; }
+
+  .dashboard-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -272px;
+    width: 260px;
+    z-index: 60;
+    box-shadow: 0 0 0 rgba(0,0,0,0);
+    transition: left var(--duration-medium) var(--ease-standard);
+  }
+
+  .dashboard-sidebar.is-open {
+    left: 0;
+    box-shadow: 12px 0 32px rgba(12, 20, 17, 0.3);
+  }
+
+  .dashboard-topbar__toggle { display: flex; }
+
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .details-grid { grid-template-columns: 1fr; }
+  .report-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .dashboard-content { padding: var(--space-5) var(--space-4); }
+  .dashboard-topbar { padding: var(--space-3) var(--space-4); }
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  .stat-card { padding: var(--space-3) var(--space-4); }
+  .stat-card__value { font-size: 1.5rem; }
+  .filter-bar .field { min-width: 0; flex: 1 1 140px; }
+  .food-thumb--lg { height: 180px; }
+  .donation-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+  .summary-card-grid { grid-template-columns: 1fr; }
+  .bar-chart-row__label { width: 100px; font-size: var(--fs-xsmall); }
+}
+
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .dashboard-topbar__title { font-size: 1rem; }
+  .dashboard-content__head { flex-direction: column; align-items: stretch; }
+  .dashboard-content__head .btn { width: 100%; }
+  .donation-grid { grid-template-columns: 1fr; }
+}
+

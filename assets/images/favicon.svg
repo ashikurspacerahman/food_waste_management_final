@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="sufraFaviconGrad" x1="20" y1="8" x2="82" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E7896A"/>
+      <stop offset="0.55" stop-color="#D36B4A"/>
+      <stop offset="1" stop-color="#A8452C"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="46" fill="none" stroke="#D9A441" stroke-width="2.5"/>
+  <circle cx="50" cy="50" r="41" fill="url(#sufraFaviconGrad)"/>
+  <path d="M22 59 Q50 79 78 59 Q50 70 22 59 Z" fill="#FBF6EC"/>
+  <ellipse cx="50" cy="58" rx="28" ry="7.5" fill="#FBF6EC"/>
+  <path d="M50 28c-5-7-17-5.5-17 3.5 0 8.5 9.5 13 17 18.5 7.5-5.5 17-10 17-18.5 0-9-12-10.5-17-3.5Z" fill="#8FBF9B"/>
+  <path d="M50 40l-4.5-7M50 40l4.5-7" stroke="#3E6650" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+  <path d="M50 40v22" stroke="#2E4235" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
