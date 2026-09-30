@@ -33,6 +33,10 @@ Browser (HTML/CSS/JS pages)  ──fetch JSON──►  api/*.php  ──PDO─�
 * **Backend** — the teammate's PHP logic, moved into `api/` as JSON endpoints. All the business rules were kept: donation lock on request, reject re-opens it, volunteer claims a pickup, delivery subtracts quantity and re-opens leftovers, auto-waste of expired food (runs on every API call, no cron needed), notifications, audit log, forgot/reset password, feedback for food + volunteer, admin category CRUD.
 * **Database** — the team's *final consolidated schema*, unchanged, plus a few additive columns the Sufra UI needs (each marked `[MERGE ADDITION]` in the SQL file): `AppUser.phone/address/status`, `Volunteer.availability_note`, `FoodDonation.description/prepared_at/contact/notes` + statuses `draft`/`cancelled`, `Request.people_to_serve/notes/preferred_pickup`, `PickupAssignment` status `in_transit`, `AuditLog.description`, and `UNIQUE(request_id)` on `Feedback`.
 
+## Food photos
+
+Donors can attach one photo (JPG, PNG or WebP, max 5 MB) when creating a donation and can add/replace it later from *My Donations → View*. Files are stored in `uploads/food/` (random names, PHP execution blocked by `uploads/food/.htaccess`); MySQL keeps only the relative path in `DonationImage.image_url`. No SQL migration is needed. Details and the test checklist are in `INTEGRATION_PROGRESS.md`.
+
 ## Status names (DB → screen)
 
 | Database (`FoodDonation.status`) | Shown in UI |

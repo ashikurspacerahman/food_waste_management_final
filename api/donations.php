@@ -4,12 +4,18 @@
 //   POST  /api/donations.php            donor: post (or save as draft) a donation
 //   PATCH /api/donations.php?id=  { status: 'cancelled' | 'available' | 'wasted', reason? }
 //         donor only: cancel, publish a draft, or report food as wasted
+//   POST  /api/donations.php?id=&action=image   donor only: add / replace the food photo
+//         (multipart/form-data, field "image"; JPEG/PNG/WebP, max 5 MB)
+// Photos: POST /api/donations.php also accepts multipart/form-data with an optional
+//   "image" file. The file is saved in uploads/food/ and only its relative path is
+//   stored in DonationImage.image_url (see image-helpers.php).
 // Tables: FoodDonation, Address, DonationImage, FoodCategory, WasteLog,
 //         Request (pending requests are closed when a donation is withdrawn)
 //
 // Status shown to the frontend:  available | pending (a request is waiting) |
 //   claimed (request accepted) | delivered | expired | wasted | draft | cancelled
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/image-helpers.php';
 
 $me     = require_user($pdo);
 $myId   = (int) $me['user_id'];
@@ -87,6 +93,63 @@ if ($method === 'GET') {
     json_out(array_map('map_donation', $rows));
 }
 
+/* ===================== POST ?action=image : add / replace the photo ===================== */
+if ($method === 'POST' && query_str('action') === 'image') {
+    if ($me['role'] !== 'donor') {
+        throw new ApiException('Only the donor can change a donation photo.', 403);
+    }
+    $id = (int) query_str('id', '0');
+    if ($id <= 0) {
+        throw new ApiException('Missing donation id.');
+    }
+
+    $image = validate_food_image($_FILES['image'] ?? null);
+    if ($image === null) {
+        throw new ApiException('Choose an image to upload.');
+    }
+
+    // Ownership check in SQL: someone else's donation looks exactly like a missing one.
+    $chk = $pdo->prepare('SELECT donation_id, title, status FROM FoodDonation WHERE donation_id = ? AND donor_id = ?');
+    $chk->execute([$id, $myId]);
+    $don = $chk->fetch();
+    if (!$don) {
+        throw new ApiException('Donation not found.', 404);
+    }
+    if (!in_array($don['status'], ['draft', 'available', 'requested'], true)) {
+        throw new ApiException('The photo of a donation that is already assigned, delivered or closed cannot be changed.', 409);
+    }
+
+    $stored = null;
+    try {
+        $stored = store_food_image($image);
+        $oldPaths = with_transaction($pdo, function () use ($pdo, $myId, $id, $don, $stored) {
+            $sel = $pdo->prepare('SELECT image_url FROM DonationImage WHERE donation_id = ? FOR UPDATE');
+            $sel->execute([$id]);
+            $old = $sel->fetchAll(PDO::FETCH_COLUMN);          // this donation's images only
+
+            $pdo->prepare('DELETE FROM DonationImage WHERE donation_id = ?')->execute([$id]);
+            $pdo->prepare('INSERT INTO DonationImage (donation_id, image_url) VALUES (?, ?)')
+                ->execute([$id, $stored['path']]);
+
+            log_action($pdo, $myId, 'UPDATE', 'DonationImage', $id,
+                ($old ? 'Replaced' : 'Added') . ' the photo of "' . $don['title'] . '".');
+            return $old;
+        });
+    } catch (Throwable $e) {
+        if ($stored !== null) {
+            discard_food_image_file($stored['abs']);
+        }
+        throw $e;
+    }
+
+    // The database now points at the new file: only now remove the old file(s).
+    foreach ($oldPaths as $oldPath) {
+        delete_food_image_by_path($oldPath);
+    }
+
+    json_out(map_donation(fetch_donation_row($pdo, $id)));
+}
+
 /* ===================== POST : create ===================== */
 if ($method === 'POST') {
     if ($me['role'] !== 'donor') {
@@ -101,7 +164,6 @@ if ($method === 'POST') {
     $pickup      = body_str('pickupAddress');
     $contact     = short_text(body_str('contact'), 50);
     $notes       = short_text(body_str('notes'), 255);
-    $imageUrl    = short_text(body_str('imageUrl'), 255);
     $asDraft     = body_str('status') === 'draft';
 
     $expires  = normalize_datetime(body_str('expiresAt'));
@@ -139,9 +201,18 @@ if ($method === 'POST') {
         }
     }
 
+    // Check the photo BEFORE anything is written (nothing is stored if it is bad).
+    $image = validate_food_image($_FILES['image'] ?? null);
+
+    $stored = null;      // the file we saved, so it can be removed if the database step fails
+    try {
+    if ($image !== null) {
+        $stored = store_food_image($image);
+    }
+
     $donationId = with_transaction($pdo, function () use (
         $pdo, $myId, $title, $categoryId, $description, $quantity, $unit, $pickup, $contact, $notes,
-        $imageUrl, $asDraft, $expires, $prepared
+        $stored, $asDraft, $expires, $prepared
     ) {
         $addressId = save_address($pdo, $pickup);
 
@@ -166,15 +237,21 @@ if ($method === 'POST') {
         ]);
         $donationId = (int) $pdo->lastInsertId();
 
-        if ($imageUrl !== '') {
+        if ($stored !== null) {
             $pdo->prepare('INSERT INTO DonationImage (donation_id, image_url) VALUES (?, ?)')
-                ->execute([$donationId, $imageUrl]);
+                ->execute([$donationId, $stored['path']]);
         }
 
         log_action($pdo, $myId, 'INSERT', 'FoodDonation', $donationId,
             ($asDraft ? 'Saved draft donation "' : 'Posted donation "') . $title . '" (' . $quantity . ' ' . $unit . ').');
         return $donationId;
     });
+    } catch (Throwable $e) {
+        if ($stored !== null) {
+            discard_food_image_file($stored['abs']);     // no orphaned file
+        }
+        throw $e;
+    }
 
     json_out(map_donation(fetch_donation_row($pdo, $donationId)), 201);
 }

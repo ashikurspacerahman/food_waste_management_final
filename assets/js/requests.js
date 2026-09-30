@@ -57,7 +57,7 @@ async function renderDonorRequests() {
           <tr>
             <td>
               <div class="table-cell-with-thumb">
-                <div class="food-thumb">${donation ? categoryEmoji(donation.categoryId) : "🍽️"}</div>
+                ${foodThumbHtml(donation)}
                 <div>
                   <div class="table-cell-with-thumb__name">${donation ? esc(donation.title) : "Donation removed"}</div>
                   <div class="table-cell-with-thumb__meta">${r.donationId}</div>

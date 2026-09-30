@@ -29,7 +29,7 @@ function renderDonationCards(donations) {
     <div class="donation-card">
       <div class="donation-card__image">
         ${isExpiringSoon(d.expiresAt) ? '<span class="badge badge--expired donation-card__flag">Expiring soon</span>' : ""}
-        ${categoryEmoji(d.categoryId)}
+        ${foodCoverHtml(d)}
       </div>
       <div class="donation-card__body">
         <h3 class="donation-card__title">${esc(d.title)}</h3>
@@ -139,7 +139,7 @@ async function initFoodDetailsPage() {
   container.innerHTML = `
     <div class="details-grid">
       <div class="stack" style="gap: var(--space-5);">
-        <div class="food-thumb food-thumb--lg">${categoryEmoji(donation.categoryId)}</div>
+        ${foodThumbHtml(donation, true)}
         <div class="card">
           <h3>Description</h3>
           <p>${esc(donation.description) || "No additional description provided."}</p>
@@ -302,7 +302,7 @@ async function renderRecipientRequests() {
           <tr>
             <td>
               <div class="table-cell-with-thumb">
-                <div class="food-thumb">${d ? categoryEmoji(d.categoryId) : "🍽️"}</div>
+                ${foodThumbHtml(d)}
                 <div>
                   <div class="table-cell-with-thumb__name">${d ? esc(d.title) : "Donation removed"}</div>
                   <div class="table-cell-with-thumb__meta">${r.donationId}</div>

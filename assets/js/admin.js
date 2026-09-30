@@ -231,7 +231,7 @@ async function renderAdminDonationsTable() {
             <td>${esc(d.donorName)}</td>
             <td>
               <div class="table-cell-with-thumb">
-                <div class="food-thumb">${categoryEmoji(d.categoryId)}</div>
+                ${foodThumbHtml(d)}
                 <div class="table-cell-with-thumb__name">${esc(d.title)}</div>
               </div>
             </td>

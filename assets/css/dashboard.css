@@ -379,6 +379,59 @@
   font-size: 3rem;
 }
 
+/* Uploaded photo inside a thumbnail box (small square: cropped to fill) */
+.food-thumb--photo {
+  overflow: hidden;
+  display: block;
+}
+.food-thumb--photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Large photo on the details pages: show the WHOLE picture, never a cropped strip */
+.food-thumb--lg.food-thumb--photo {
+  height: auto;
+  display: flex;
+  justify-content: center;
+  background: var(--color-surface-sunken);
+}
+.food-thumb--lg.food-thumb--photo img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+}
+
+/* Photo controls on the donor's donation-details page */
+.image-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* Preview under the file input on the Create Donation form */
+.image-preview {
+  margin-top: var(--space-3);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.image-preview img {
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  display: block;
+}
+
 .table-cell-with-thumb {
   display: flex;
   align-items: center;
@@ -482,6 +535,7 @@
 }
 
 .donation-card__image {
+  overflow: hidden;
   height: 140px;
   background: linear-gradient(145deg, var(--color-accent-tint) 0%, var(--color-primary-tint) 100%);
   display: grid;
@@ -490,7 +544,16 @@
   position: relative;
 }
 
+.donation-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .donation-card__flag {
+  z-index: 1;
   position: absolute;
   top: 10px;
   left: 10px;

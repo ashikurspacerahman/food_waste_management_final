@@ -16,6 +16,43 @@ function categoryEmoji(categoryId) {
   return CATEGORY_EMOJI[getCategoryName(categoryId)] || "🍽️";
 }
 
+/* ---------- Food photo helpers (used by donor, recipient and admin views) ---------- */
+const FOOD_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const FOOD_IMAGE_MAX_MB = 5;
+
+// Returns an error message, or "" when the file looks acceptable.
+// (The server re-checks everything; this just gives instant feedback.)
+function validateFoodImageFile(file) {
+  if (!file) return "";
+  if (!FOOD_IMAGE_TYPES.includes(file.type)) return "Please upload a JPG, PNG, or WEBP image.";
+  if (file.size > FOOD_IMAGE_MAX_MB * 1024 * 1024) return `Image must be under ${FOOD_IMAGE_MAX_MB}MB.`;
+  return "";
+}
+
+// If a photo fails to load, fall back to the category emoji placeholder.
+function foodImageFailed(img) {
+  const parent = img.parentElement;
+  if (parent) parent.classList.remove("food-thumb--photo");
+  img.replaceWith(document.createTextNode(img.dataset.emoji || "🍽️"));
+}
+
+// Small square (or large, when `large`) thumbnail: the uploaded photo, or the emoji placeholder.
+function foodThumbHtml(donation, large = false) {
+  const emoji = categoryEmoji(donation ? donation.categoryId : null);
+  const cls = "food-thumb" + (large ? " food-thumb--lg" : "");
+  const src = donation ? foodImageSrc(donation.imageUrl) : null;
+  if (!src) return `<div class="${cls}">${emoji}</div>`;
+  return `<div class="${cls} food-thumb--photo"><img src="${esc(src)}" alt="${esc(donation.title)}" loading="lazy" data-emoji="${esc(emoji)}" onerror="foodImageFailed(this)" /></div>`;
+}
+
+// Cover for the recipient's donation cards: the photo, or the emoji placeholder.
+function foodCoverHtml(donation) {
+  const emoji = categoryEmoji(donation.categoryId);
+  const src = foodImageSrc(donation.imageUrl);
+  if (!src) return emoji;
+  return `<img class="donation-card__img" src="${esc(src)}" alt="${esc(donation.title)}" loading="lazy" data-emoji="${esc(emoji)}" onerror="foodImageFailed(this)" />`;
+}
+
 function statusBadgeClass(status) {
   return `badge--${status.replace(/\s+/g, "-")}`;
 }
@@ -59,7 +96,7 @@ function renderDonationsTable(donations) {
           <tr>
             <td>
               <div class="table-cell-with-thumb">
-                <div class="food-thumb">${categoryEmoji(d.categoryId)}</div>
+                ${foodThumbHtml(d)}
                 <div>
                   <div class="table-cell-with-thumb__name">${esc(d.title)}</div>
                   <div class="table-cell-with-thumb__meta">${d.donationId}</div>
@@ -207,26 +244,55 @@ async function initCreateDonationForm() {
   if (!form) return;
 
   const imageInput = form.querySelector('input[name="image"]');
-  if (imageInput) {
-    imageInput.addEventListener("change", () => {
-      const file = imageInput.files[0];
-      const field = imageInput.closest(".field");
-      if (!file) return;
+  const previewBox = form.querySelector("[data-image-preview]");
+  const previewImg = previewBox ? previewBox.querySelector("img") : null;
+  let previewUrl = null;
 
-      const validTypes = ["image/jpeg", "image/png", "image/webp"];
-      const maxSizeMb = 5;
-      let ok = true;
-      if (!validTypes.includes(file.type)) {
-        field.querySelector(".field__error").textContent = "Please upload a JPG, PNG, or WEBP image.";
-        ok = false;
-      } else if (file.size > maxSizeMb * 1024 * 1024) {
-        field.querySelector(".field__error").textContent = `Image must be under ${maxSizeMb}MB.`;
-        ok = false;
-      }
-      field.classList.toggle("has-error", !ok);
-      if (ok) showToast(`"${file.name}" selected.`);
-    });
+  function clearImagePreview() {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      previewUrl = null;
+    }
+    if (previewImg) previewImg.removeAttribute("src");
+    if (previewBox) previewBox.hidden = true;
   }
+
+  if (imageInput) {
+    const imageField = imageInput.closest(".field");
+
+    imageInput.addEventListener("change", () => {
+      clearImagePreview();
+      const file = imageInput.files[0];
+      if (!file) {
+        imageField.classList.remove("has-error");
+        return;
+      }
+      const problem = validateFoodImageFile(file);
+      if (problem) {
+        imageField.querySelector(".field__error").textContent = problem;
+        imageField.classList.add("has-error");
+        imageInput.value = "";          // don't keep a file the server would reject
+        return;
+      }
+      imageField.classList.remove("has-error");
+      if (previewImg && previewBox) {
+        previewUrl = URL.createObjectURL(file);
+        previewImg.src = previewUrl;
+        previewBox.hidden = false;
+      }
+    });
+
+    const clearBtn = form.querySelector("[data-image-clear]");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        imageInput.value = "";
+        imageField.classList.remove("has-error");
+        clearImagePreview();
+      });
+    }
+  }
+
+  let submitting = false;
 
   async function submitDonation(status) {
     const title = form.title.value.trim();
@@ -253,25 +319,39 @@ async function initCreateDonationForm() {
         "Expiry must be later than the preparation time.";
     }
 
+    const imageFile = imageInput ? imageInput.files[0] : null;
+    const imageProblem = validateFoodImageFile(imageFile);
+    if (imageProblem) {
+      const imageField = imageInput.closest(".field");
+      imageField.querySelector(".field__error").textContent = imageProblem;
+      imageField.classList.add("has-error");
+      valid = false;
+    }
+
     if (!valid) {
       showToast("Please fix the highlighted fields.", "error");
       return;
     }
+    if (submitting) return;
+    submitting = true;
+
+    // multipart/form-data so the photo can travel with the other fields
+    const data = new FormData();
+    data.append("title", title);
+    data.append("categoryId", categoryId);
+    data.append("description", description);
+    data.append("quantity", quantity);
+    data.append("unit", unit);
+    data.append("preparedAt", preparedAt);
+    data.append("expiresAt", expiresAt);
+    data.append("pickupAddress", pickupAddress);
+    data.append("contact", contact);
+    data.append("notes", form.notes.value.trim());
+    data.append("status", status === "draft" ? "draft" : "available");
+    if (imageFile) data.append("image", imageFile);
 
     try {
-      await createDonation({
-      title,
-      categoryId,
-      description,
-      quantity: Number(quantity),
-      unit,
-      preparedAt,
-      expiresAt,
-      pickupAddress,
-      contact,
-      notes: form.notes.value.trim(),
-      status: status === "draft" ? "draft" : "available",
-      });
+      await createDonation(data);
 
       showToast(status === "draft" ? "Draft saved." : "Donation published.", "success");
       setTimeout(() => {
@@ -279,6 +359,7 @@ async function initCreateDonationForm() {
       }, 700);
     } catch (err) {
       showError(err);
+      submitting = false;
     }
   }
 
@@ -323,7 +404,16 @@ async function initDonationDetailsPage() {
   document.getElementById("details-container").innerHTML = `
     <div class="details-grid">
       <div class="stack" style="gap: var(--space-5);">
-        <div class="food-thumb food-thumb--lg">${categoryEmoji(donation.categoryId)}</div>
+        ${foodThumbHtml(donation, true)}
+        ${
+          ["draft", "available", "pending"].includes(donation.status)
+            ? `<div class="image-actions">
+                <input type="file" id="replace-image-input" accept="image/jpeg,image/png,image/webp" hidden />
+                <button type="button" class="btn btn--outline btn--sm" id="replace-image-btn">${donation.imageUrl ? "Replace photo" : "Add photo"}</button>
+                <span class="field__hint">JPG, PNG, or WEBP — up to 5MB.</span>
+              </div>`
+            : ""
+        }
         <div class="card">
           <h3>Description</h3>
           <p>${esc(donation.description) || "No additional description provided."}</p>
@@ -355,4 +445,30 @@ async function initDonationDetailsPage() {
       </div>
     </div>
   `;
+
+  const replaceBtn = document.getElementById("replace-image-btn");
+  const replaceInput = document.getElementById("replace-image-input");
+  if (replaceBtn && replaceInput) {
+    replaceBtn.addEventListener("click", () => replaceInput.click());
+    replaceInput.addEventListener("change", async () => {
+      const file = replaceInput.files[0];
+      if (!file) return;
+      const problem = validateFoodImageFile(file);
+      if (problem) {
+        showToast(problem, "error");
+        replaceInput.value = "";
+        return;
+      }
+      replaceBtn.disabled = true;
+      try {
+        await replaceDonationImage(donation.donationId, file);
+        showToast("Photo updated.", "success");
+        await initDonationDetailsPage();      // re-render with the new photo
+      } catch (err) {
+        showError(err);
+        replaceBtn.disabled = false;
+        replaceInput.value = "";
+      }
+    });
+  }
 }

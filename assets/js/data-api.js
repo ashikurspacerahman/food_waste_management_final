@@ -40,7 +40,10 @@ async function apiFetch(path, { method = "GET", body } = {}) {
   } else {
     init.method = method;
   }
-  if (body !== undefined) {
+  if (body instanceof FormData) {
+    // File uploads: let the browser set the multipart Content-Type (with its boundary).
+    init.body = body;
+  } else if (body !== undefined) {
     headers["Content-Type"] = "application/json";
     init.body = JSON.stringify(body);
   }
@@ -77,6 +80,18 @@ function qs(params = {}) {
   });
   const s = new URLSearchParams(clean).toString();
   return s ? `?${s}` : "";
+}
+
+/* ---------- Food images ----------
+   The API returns image paths relative to the project root
+   ("uploads/food/food_ab12....jpg"). This turns one into a URL that works from
+   any page depth, or returns null (=> show the emoji placeholder). Only paths
+   inside uploads/food/ are accepted. */
+const SITE_ROOT = API_BASE.replace(/\/api$/, "");
+
+function foodImageSrc(path) {
+  if (typeof path !== "string" || !/^uploads\/food\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp)$/.test(path)) return null;
+  return `${SITE_ROOT}/${path}`;
 }
 
 /* ---------- Categories (cached: they are reference data) ---------- */
@@ -127,8 +142,16 @@ function getDonationById(donationId) {
     throw e;
   });
 }
+// `donation` may be a plain object (sent as JSON) or a FormData (sent as multipart,
+// use this when the donation includes a food photo in the "image" field).
 function createDonation(donation) {
   return apiFetch("/donations.php", { method: "POST", body: donation });
+}
+// Add or replace the photo of one of the logged-in donor's own donations.
+function replaceDonationImage(donationId, file) {
+  const form = new FormData();
+  form.append("image", file);
+  return apiFetch(`/donations.php${qs({ id: donationId, action: "image" })}`, { method: "POST", body: form });
 }
 // status: "cancelled" | "available" (publish a draft) | "wasted"
 function updateDonationStatus(donationId, status, extra = {}) {

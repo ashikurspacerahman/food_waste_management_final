@@ -1,0 +1,35 @@
+# Sufra - uploaded food images.
+# Only the image files we generate can be downloaded, and nothing in this
+# folder can ever be executed as code.
+
+Options -Indexes -ExecCGI -Includes
+
+# Switch the PHP engine off for this folder (mod_php builds of Apache)
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_php5.c>
+  php_flag engine off
+</IfModule>
+
+# Never hand these extensions to a script handler
+<IfModule mod_mime.c>
+  RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phps .phar .pl .py .cgi .shtml
+  RemoveType    .php .phtml .php3 .php4 .php5 .php7 .php8 .phps .phar
+  AddType text/plain .php .phtml .php3 .php4 .php5 .php7 .php8 .phps .phar
+</IfModule>
+
+# Deny everything, then allow only the exact names the uploader generates
+<IfModule mod_authz_core.c>
+  Require all denied
+  <FilesMatch "^food_[a-f0-9]{32}\.(jpg|png|webp)$">
+    Require all granted
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>

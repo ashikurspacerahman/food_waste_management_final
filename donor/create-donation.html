@@ -136,6 +136,10 @@
             <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp" />
             <span class="field__hint">JPG, PNG, or WEBP — up to 5MB.</span>
             <span class="field__error"></span>
+            <div class="image-preview" data-image-preview hidden>
+              <img alt="Preview of the selected food image" />
+              <button type="button" class="btn btn--ghost btn--sm" data-image-clear>Remove image</button>
+            </div>
           </div>
 
           <div class="field">

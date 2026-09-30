@@ -93,6 +93,13 @@ function read_body() {
     if ($cache !== null) {
         return $cache;
     }
+    // FormData submissions (e.g. a donation with a photo) arrive in $_POST;
+    // everything else is JSON.
+    $type = strtolower($_SERVER['CONTENT_TYPE'] ?? '');
+    if (strpos($type, 'multipart/form-data') === 0 || strpos($type, 'application/x-www-form-urlencoded') === 0) {
+        $cache = $_POST;
+        return $cache;
+    }
     $raw  = file_get_contents('php://input');
     $data = json_decode($raw === false ? '' : $raw, true);
     $cache = is_array($data) ? $data : [];
