@@ -2,11 +2,11 @@
 
 Frontend (Sufra UI) + PHP backend + MySQL schema, merged into one project that runs on **XAMPP**.
 
-Group Members: 1. Md.Ashikur Rahman
-               2. Md Ibrahim Hossain Nion
-               3.Nazif Faisal
-               4.Sumaiya Yasmin
-               5.Muntaha Rahman
+Group Members: 1. Md.Ashikur Rahman;
+               2. Md Ibrahim Hossain Nion;
+               3.Nazif Faisal;
+               4.Sumaiya Yasmin;
+               5.Muntaha Rahman;
 ## Run it (5 steps)
 
 1. Install/open **XAMPP** and start **Apache** and **MySQL**.
